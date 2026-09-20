@@ -58,7 +58,7 @@ The exception queue shows expected and observed evidence, severity and a recover
 
 The transaction view keeps provider and merchant references, integer amounts, lifecycle status and event timing visible for investigation.
 
-![ReconLab provider transaction feed](docs/images/reconlab-transactiono-preview.png)
+![ReconLab provider transaction feed](docs/images/Reconlab-transactiono-preview.png)
 
 ### Attributable audit trail
 
