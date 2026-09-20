@@ -6,6 +6,12 @@ ReconLab demonstrates the engineering behind reliable payment processing: signed
 
 > This repository is a technical demonstration. Every provider, customer, transaction and balance shown in the application is synthetic. It does not connect to live financial accounts or move real money.
 
+## Live interactive preview
+
+[Open the browser-based ReconLab demo](https://j-massoda.github.io/africa-payment-reconciliation-lab/)
+
+The GitHub Pages preview runs entirely in the visitor's browser with synthetic data. Its state is isolated to the current browser session. It does not call a payment provider, accept real webhooks, write to a shared database, or move money. The repository also retains the original Node API routes as the reference server implementation.
+
 ## Why this project exists
 
 A provider can confirm a payment while an internal write times out. A webhook can arrive twice. A settlement export can disagree with the application database. A reversal can arrive hours after the original credit.
@@ -26,7 +32,39 @@ The dashboard lets a reviewer run three controlled scenarios without credentials
 2. **Amount mismatch** — the provider and ledger share a reference but disagree on value.
 3. **Duplicate webhook** — the same event is delivered twice and the second write is blocked.
 
-Each scenario passes through the same domain services used by the HTTP routes. It is not a pre-rendered animation. The resulting transaction, reconciliation case, metrics and audit events are created while the reviewer uses the application.
+Each scenario uses the same typed reconciliation rules that support the HTTP implementation. In the GitHub Pages preview, the event, transaction, exception, metrics and audit entries are created locally in the visitor's browser. In a Node deployment, the same interface can use the repository's `/api/*` routes. This is an interactive demonstration, not a pre-rendered animation.
+
+## Product walkthrough
+
+### Reconciliation overview
+
+The operations dashboard summarizes processed volume, reconciliation rate, open exceptions, recovered value and provider health in one review surface.
+
+![ReconLab reconciliation overview dashboard](docs/images/reconlab-demo-preview.png)
+
+### Controlled missing-ledger scenario
+
+The demo can create a provider-confirmed payment without the corresponding internal ledger posting, reproducing a realistic distributed-system failure without touching live money.
+
+![ReconLab missing ledger simulation](docs/images/reconlab-missing-ledger-preview.png)
+
+### Exception investigation and safe recovery
+
+The exception queue shows expected and observed evidence, severity and a recovery recommendation before an operator applies a compensating action.
+
+![ReconLab reconciliation exception workflow](docs/images/reconlab-reconciliation-preview.png)
+
+### Provider transaction evidence
+
+The transaction view keeps provider and merchant references, integer amounts, lifecycle status and event timing visible for investigation.
+
+![ReconLab provider transaction feed](docs/images/reconlab-transaction-preview.png)
+
+### Attributable audit trail
+
+The audit view records synthetic webhook admission, duplicate prevention, reconciliation runs and recovery actions so each state change remains explainable.
+
+![ReconLab operational audit trail](docs/images/reconlab-demo-audit-trail.png)
 
 ## What the project demonstrates
 
@@ -267,6 +305,14 @@ The automated tests cover:
 - tampered payload and malformed signature rejection.
 
 ## Deployment
+
+### Demo modes
+
+| Mode | Runtime | State | Purpose |
+| --- | --- | --- | --- |
+| GitHub Pages preview | Static HTML, CSS and client-side JavaScript | Per-tab `sessionStorage`; resets when the session is cleared | Fast public interaction with synthetic scenarios |
+| Node/API demo | Next.js server and `/api/*` routes | Process-local demonstration state | Inspectable HTTP boundary and webhook workflow |
+| Production adaptation | PostgreSQL, durable queue and secret manager | Transactional and durable | Architecture path only; not included as a live financial service |
 
 ### Portfolio demo
 

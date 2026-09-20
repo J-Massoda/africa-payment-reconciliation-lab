@@ -38,6 +38,10 @@ import type {
   ReconciliationCase,
   Severity,
 } from "@/domain/types";
+import {
+  loadDashboardSnapshot,
+  performDashboardMutation,
+} from "@/lib/dashboard-client";
 
 type Scenario = "missing_ledger" | "amount_mismatch" | "duplicate_webhook";
 type View = "overview" | "exceptions" | "activity" | "transactions";
@@ -101,11 +105,7 @@ export function ReconciliationDashboard() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/dashboard", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("Could not load the reconciliation workspace");
-        return response.json() as Promise<DashboardSnapshot>;
-      })
+    loadDashboardSnapshot()
       .then((data) => {
         if (active) setSnapshot(data);
       })
@@ -122,14 +122,8 @@ export function ReconciliationDashboard() {
       setBusy(key);
       setNotice(null);
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: body ? { "Content-Type": "application/json" } : undefined,
-          body: body ? JSON.stringify(body) : undefined,
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? "The action could not be completed");
-        setSnapshot(result.snapshot);
+        const nextSnapshot = await performDashboardMutation(endpoint, body);
+        setSnapshot(nextSnapshot);
         setNotice(success ?? "Action completed successfully.");
         setSelectedCase(null);
       } catch (error) {
